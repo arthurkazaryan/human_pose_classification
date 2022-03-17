@@ -2,7 +2,6 @@ import sys
 import mediapipe as mp
 import numpy as np
 from pathlib import Path
-from dataset import split_data
 from train import TrainNN
 from PIL import Image
 
@@ -29,6 +28,7 @@ def predict(image_path, model):
     if not x_data:
         return 'Prediction failed.'
 
+    split_data = ['front', 'side', 'back']
     prediction = ''
     prediction += f'{split_data[np.argmax(model.predict(np.expand_dims(np.array(x_data), 0)))]} view.'
     if np.mean(full_height_points) > 0.9:
