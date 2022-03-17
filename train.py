@@ -1,5 +1,6 @@
 import h5py
 import tensorflow as tf
+import sys
 from tensorflow import keras
 from tensorflow.keras import layers
 from pathlib import Path
@@ -8,20 +9,8 @@ from tensorflow.python.data.ops.dataset_ops import DatasetV2 as Dataset
 
 class TrainNN:
 
-    def __init__(self):
-        self.dataset = {}
-
-    @staticmethod
-    def generator(split):
-
-        for i in range(len(globals()[f'{split}_dataframe'])):
-            with h5py.File(Path.cwd().joinpath('dataset.h5'), 'r') as hdf:
-                coords_array = hdf[split]['input'][str(i)][()]
-                inp_dict = {'input': coords_array}
-                class_array = hdf[split]['output'][str(i)][()]
-                out_dict = {'output': class_array}
-
-                yield inp_dict, out_dict
+    dataset = {}
+    dataframe_length = {'train': 24020, 'val': 5988}
 
     @staticmethod
     def make_model():
@@ -42,6 +31,17 @@ class TrainNN:
 
         return model
 
+    def generator(self, split):
+
+        for i in range(self.dataframe_length[split]):
+            with h5py.File(Path.cwd().joinpath('dataset', 'dataset.h5'), 'r') as hdf:
+                coords_array = hdf[split]['input'][str(i)][()]
+                inp_dict = {'input': coords_array}
+                class_array = hdf[split]['output'][str(i)][()]
+                out_dict = {'output': class_array}
+
+                yield inp_dict, out_dict
+
     def prepare_dataset(self):
 
         out_signature = [{}, {}]
@@ -53,10 +53,14 @@ class TrainNN:
                         'val': Dataset.from_generator(lambda: self.generator('val'),
                                                       output_signature=tuple(out_signature))}
 
-    def start_train(self, epochs, batch_size, save_weights=False):
+    def start_train(self, epochs, batch_size):
 
         model = self.make_model()
         model.fit(self.dataset['train'].batch(batch_size), epochs=epochs,
                   validation_data=self.dataset['val'].batch(batch_size))
-        if save_weights:
-            model.save_weights(Path.cwd().joinpath('weights', 'weights.h5'))
+        model.save_weights(Path.cwd().joinpath('weights', 'weights.h5'))
+
+
+train = TrainNN()
+train.prepare_dataset()
+train.start_train(int(sys.argv[1]), int(sys.argv[2]))

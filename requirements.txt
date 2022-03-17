@@ -1,8 +1,8 @@
 mediapipe
-opencv
+opencv-python
 numpy
 pandas
 gdown
 tqdm
-PIL
+pillow
 h5py
