@@ -21,17 +21,19 @@ side_pos = dataframe.loc[dataframe['positions'] == 'side']
 back_pos = dataframe.loc[dataframe['positions'] == 'back']
 
 # Since the amount of images for each classes are different, I am taking the same percentage from each class.
+train_csv_path = Path.cwd().joinpath('dataset', 'train.csv')
+val_csv_path = Path.cwd().joinpath('dataset', 'val.csv')
 train_data = []
 for split_name in split_data:
     train_data.append(globals()[f'{split_name}_pos'][:int(split['train']*classes_dict[split_name])])
-pd.concat(train_data).sample(frac=1).reset_index(drop=True).to_csv(Path.cwd().joinpath('dataset', 'train.csv'))
+pd.concat(train_data).sample(frac=1).reset_index(drop=True).to_csv(train_csv_path)
 val_data = []
 for split_name in split_data:
     val_data.append(globals()[f'{split_name}_pos'][:int(split['val']*classes_dict[split_name])])
-pd.concat(val_data).sample(frac=1).reset_index(drop=True).to_csv('val.csv')
+pd.concat(val_data).sample(frac=1).reset_index(drop=True).to_csv(val_csv_path)
 
-train_dataframe = pd.read_csv('train.csv', index_col=0)
-val_dataframe = pd.read_csv('val.csv', index_col=0)
+train_dataframe = pd.read_csv(train_csv_path, index_col=0)
+val_dataframe = pd.read_csv(val_csv_path, index_col=0)
 
 with h5py.File(Path.cwd().joinpath('dataset', 'dataset.h5'), 'w') as hdf:
     for split in ['train', 'val']:

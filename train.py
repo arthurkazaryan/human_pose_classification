@@ -1,35 +1,15 @@
 import h5py
 import tensorflow as tf
 import sys
-from tensorflow import keras
-from tensorflow.keras import layers
+from utils import make_model
 from pathlib import Path
 from tensorflow.python.data.ops.dataset_ops import DatasetV2 as Dataset
 
 
-class TrainNN:
+class TrainNN(object):
 
     dataset = {}
     dataframe_length = {'train': 24020, 'val': 5988}
-
-    @staticmethod
-    def make_model():
-
-        inputs = keras.Input(shape=(33, 3), name='input')
-        x = layers.Conv1D(64, 5, activation='relu')(inputs)
-        x = layers.BatchNormalization()(x)
-        x = layers.Dropout(0.3)(x)
-        x = layers.Conv1D(128, 3, activation='relu')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.Dropout(0.3)(x)
-        x = layers.Flatten()(x)
-        x = layers.Dense(32, activation='relu')(x)
-        outputs = layers.Dense(3, activation="softmax", name='output')(x)
-
-        model = keras.Model(inputs, outputs)
-        model.compile(optimizer='adam', loss="categorical_crossentropy", metrics=["accuracy"])
-
-        return model
 
     def generator(self, split):
 
@@ -55,7 +35,7 @@ class TrainNN:
 
     def start_train(self, epochs, batch_size):
 
-        model = self.make_model()
+        model = make_model()
         model.fit(self.dataset['train'].batch(batch_size), epochs=epochs,
                   validation_data=self.dataset['val'].batch(batch_size))
         model.save_weights(Path.cwd().joinpath('weights', 'weights.h5'))

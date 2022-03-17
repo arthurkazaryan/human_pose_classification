@@ -2,7 +2,7 @@ import sys
 import mediapipe as mp
 import numpy as np
 from pathlib import Path
-from train import TrainNN
+from utils import make_model
 from PIL import Image
 
 
@@ -36,7 +36,7 @@ def predict(image_path, model):
     return prediction
 
 
-model = TrainNN.make_model()
+model = make_model()
 model.load_weights(Path.cwd().joinpath('weights', 'weights.h5'))
 predict_answer = predict(sys.argv[1], model)
 print(predict_answer)
