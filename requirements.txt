@@ -1,0 +1,8 @@
+mediapipe
+opencv
+numpy
+pandas
+gdown
+tqdm
+PIL
+h5py
